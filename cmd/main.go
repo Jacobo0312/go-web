@@ -1,12 +1,12 @@
 package main
 
 import (
-	"log"
-
 	"database/sql"
+	"log"
 
 	"github.com/Jacobo0312/go-web/cmd/server"
 	"github.com/Jacobo0312/go-web/config"
+	"github.com/Jacobo0312/go-web/pkg/firebase"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/mysql"
@@ -18,6 +18,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Load error config: %v", err)
 	}
+
+	//Firebase connection
+	firebase.InitFirebase()
 
 	// DB connection
 	log.Println("Connecting to database...")
