@@ -16,9 +16,6 @@
 
 | Endpoint                         | Description                                                                                      |
 |----------------------------------|--------------------------------------------------------------------------------------------------|
-| `/api/auth/register`             | POST: Register a new user                                                                        |
-| `/api/auth/login`                | POST: User login                                                                                 |
-| `/api/auth/logout`               | POST: User logout                                                                                |
 | `/api/users`                     | GET: Get all users<br>POST: Create a new user                                                    |
 | `/api/users/:id`                 | GET: Get a specific user<br>PUT: Update a user<br>DELETE: Delete a user                          |
 | `/api/products`                  | GET: Get all products<br>POST: Create a new product                                               |
