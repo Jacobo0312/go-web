@@ -41,6 +41,13 @@ func (s *Server) Start() error {
 
 	productHandler.RegisterRoutes(s.router)
 
+	//User
+	userRepo := repositories.NewUserRepository(s.db)
+	userService := services.NewUserService(userRepo)
+	userHandler := handlers.NewUserHandler(userService)
+
+	userHandler.RegisterRoutes(s.router)
+
 	middleware := middlewares.MiddlewareChain()
 
 	log.Printf("Starting server on %s", s.config.ServerAddr)
