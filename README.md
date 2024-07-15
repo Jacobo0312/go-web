@@ -20,10 +20,7 @@
 | `/api/users/:id`                 | GET: Get a specific user<br>PUT: Update a user<br>DELETE: Delete a user                          |
 | `/api/products`                  | GET: Get all products<br>POST: Create a new product                                               |
 | `/api/products/:id`              | GET: Get a specific product<br>PUT: Update a product<br>DELETE: Delete a product                  |
-| `/api/posts`                     | GET: Get all posts<br>POST: Create a new post                                                     |
-| `/api/posts/:id`                 | GET: Get a specific post<br>PUT: Update a post<br>DELETE: Delete a post                           |
 | `/api/upload`                    | POST: Upload a file                                                                              |
-| `/api/files/:id`                 | GET: Download a specific file                                                                    |
 
 
 ## TODO LIST
