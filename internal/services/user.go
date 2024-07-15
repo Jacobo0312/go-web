@@ -56,3 +56,7 @@ func (s *UserService) CreateUser(ctx context.Context, userRequest *models.Create
 	return userModel, nil
 
 }
+
+func (s *UserService) GetUsers() ([]models.User, error) {
+	return s.repo.GetAll()
+}

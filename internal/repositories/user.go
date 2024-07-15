@@ -34,3 +34,23 @@ func (r *UserRepository) FindByID(id string) (*models.User, error) {
 	}
 	return &u, nil
 }
+
+func (r *UserRepository) GetAll() ([]models.User, error) {
+	query := "SELECT id, name, email, role FROM users"
+	rows, err := r.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []models.User
+	for rows.Next() {
+		var u models.User
+		err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.Role)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, u)
+	}
+	return users, nil
+}

@@ -19,6 +19,7 @@ func NewUserHandler(service *services.UserService) *UserHandler {
 // Register routes
 func (h *UserHandler) RegisterRoutes(r *http.ServeMux) {
 	r.HandleFunc("POST /users", h.CreateUser)
+	r.HandleFunc("GET /users", h.GetUsers)
 
 }
 
@@ -39,4 +40,16 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(createUser)
+}
+
+func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
+	users, err := h.service.GetUsers()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(users)
 }
