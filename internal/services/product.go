@@ -24,3 +24,18 @@ func (s *ProductService) CreateProduct(product *models.Product) error {
 func (s *ProductService) GetAllProducts() ([]models.Product, error) {
 	return s.repo.GetAll()
 }
+
+// GetProductByID return a product by id
+func (s *ProductService) GetProductByID(id int64) (*models.Product, error) {
+	return s.repo.GetByID(id)
+}
+
+// UpdateProduct update a product
+func (s *ProductService) UpdateProduct(product *models.Product) error {
+	return s.repo.Update(product)
+}
+
+// DeleteProduct delete a product
+func (s *ProductService) DeleteProduct(id int64) error {
+	return s.repo.Delete(id)
+}

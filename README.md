@@ -27,3 +27,8 @@
 | `/api/posts/:id`                 | GET: Get a specific post<br>PUT: Update a post<br>DELETE: Delete a post                           |
 | `/api/upload`                    | POST: Upload a file                                                                              |
 | `/api/files/:id`                 | GET: Download a specific file                                                                    |
+
+
+## TODO LIST
+
+1. Manage errors

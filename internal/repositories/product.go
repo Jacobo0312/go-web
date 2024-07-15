@@ -50,3 +50,36 @@ func (r *ProductRepository) GetAll() ([]models.Product, error) {
 
 	return products, nil
 }
+
+func (r *ProductRepository) GetByID(id int64) (*models.Product, error) {
+	query := "SELECT id, name, price, description, category FROM products WHERE id = ?"
+	row := r.DB.QueryRow(query, id)
+
+	var p models.Product
+	err := row.Scan(&p.ID, &p.Name, &p.Price, &p.Description, &p.Category)
+	if err != nil {
+		return nil, err
+	}
+
+	return &p, nil
+}
+
+func (r *ProductRepository) Update(p *models.Product) error {
+	query := "UPDATE products SET name = ?, price = ?, description = ?, category = ? WHERE id = ?"
+	_, err := r.DB.Exec(query, p.Name, p.Price, p.Description, p.Category, p.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *ProductRepository) Delete(id int64) error {
+	query := "DELETE FROM products WHERE id = ?"
+	_, err := r.DB.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
