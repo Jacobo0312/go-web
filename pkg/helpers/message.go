@@ -1,9 +1,13 @@
 package helpers
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
+
+	appErrors "github.com/Jacobo0312/go-web/pkg/errors"
+
 )
 
 func ReadIdParam(r *http.Request) (int64, error) {
@@ -15,4 +19,16 @@ func ReadIdParam(r *http.Request) (int64, error) {
 	}
 
 	return id, nil
+}
+
+func RespondWithError(w http.ResponseWriter, err *appErrors.AppError) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(err.Code)
+	json.NewEncoder(w).Encode(map[string]string{"error": err.Message})
+}
+
+func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(payload)
 }

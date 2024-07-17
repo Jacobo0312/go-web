@@ -8,6 +8,7 @@ import (
 	"github.com/Jacobo0312/go-web/internal/services"
 
 	//"github.com/Jacobo0312/go-web/pkg/middlewares"
+	"github.com/Jacobo0312/go-web/pkg/errors"
 	"github.com/Jacobo0312/go-web/pkg/helpers"
 )
 
@@ -44,19 +45,17 @@ func (h *productHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	var product models.Product
 	err := json.NewDecoder(r.Body).Decode(&product)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		helpers.RespondWithError(w, errors.NewBadRequest("Invalid request payload", err))
 		return
 	}
 
 	err = h.service.CreateProduct(&product)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		helpers.RespondWithError(w, errors.NewInternalServerError("Error creating product", err))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(product)
+	helpers.RespondWithJSON(w, http.StatusCreated, product)
 }
 
 // Get All Products
@@ -70,13 +69,11 @@ func (h *productHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) 
 	//------------------------
 	products, err := h.service.GetAllProducts()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		helpers.RespondWithError(w, errors.NewInternalServerError("Error getting products", err))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(products)
+	helpers.RespondWithJSON(w, http.StatusOK, products)
 }
 
 // Get Product by ID
@@ -85,20 +82,18 @@ func (h *productHandler) GetProductByID(w http.ResponseWriter, r *http.Request) 
 	id, err := helpers.ReadIdParam(r)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		helpers.RespondWithError(w, errors.NewBadRequest("Invalid product ID", err))
 		return
 	}
 
 	product, err := h.service.GetProductByID(id)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		helpers.RespondWithError(w, errors.NewNotFound("Product not found", err))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(product)
+	helpers.RespondWithJSON(w, http.StatusOK, product)
 
 }
 
@@ -107,35 +102,32 @@ func (h *productHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	var product models.Product
 	err := json.NewDecoder(r.Body).Decode(&product)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		helpers.RespondWithError(w, errors.NewBadRequest("Invalid request payload", err))
 		return
 	}
 
 	err = h.service.UpdateProduct(&product)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		helpers.RespondWithError(w, errors.NewInternalServerError("Error updating product", err))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(product)
+	helpers.RespondWithJSON(w, http.StatusOK, product)
 }
 
 // Delete Product
 func (h *productHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	id, err := helpers.ReadIdParam(r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		helpers.RespondWithError(w, errors.NewBadRequest("Invalid product ID", err))
 		return
 	}
 
 	err = h.service.DeleteProduct(id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		helpers.RespondWithError(w, errors.NewInternalServerError("Error deleting product", err))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusNoContent)
+	helpers.RespondWithJSON(w, http.StatusNoContent, nil)
 }
