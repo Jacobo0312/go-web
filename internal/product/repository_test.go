@@ -21,7 +21,7 @@ func TestNewProductRepository(t *testing.T) {
 	assert.NotNil(t, repo)
 }
 
-func TestCreate(t *testing.T) {
+func TestRepositoryCreate(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -48,7 +48,7 @@ func TestCreate(t *testing.T) {
 	})
 }
 
-func TestGetAll(t *testing.T) {
+func TestRepositoryGetAll(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -79,7 +79,7 @@ func TestGetAll(t *testing.T) {
 	})
 }
 
-func TestGetByID(t *testing.T) {
+func TestRepositoryGetByID(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -108,7 +108,7 @@ func TestGetByID(t *testing.T) {
 	})
 }
 
-func TestUpdate(t *testing.T) {
+func TestRepositoryUpdate(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -134,7 +134,7 @@ func TestUpdate(t *testing.T) {
 	})
 }
 
-func TestDelete(t *testing.T) {
+func TestRepositoryDelete(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
