@@ -1,29 +1,28 @@
-package services
+package user
 
 import (
 	"context"
 	"log"
 
 	"firebase.google.com/go/v4/auth"
-	"github.com/Jacobo0312/go-web/internal/models"
-	"github.com/Jacobo0312/go-web/internal/repositories"
+	"github.com/Jacobo0312/go-web/internal/domain"
 	"github.com/Jacobo0312/go-web/pkg/firebase"
 )
 
 type UserService interface {
-	CreateUser(ctx context.Context, userRequest *models.CreateUserRequest) (*models.User, error)
-	GetUsers() ([]models.User, error)
+	CreateUser(ctx context.Context, userRequest *domain.CreateUserRequest) (*domain.User, error)
+	GetUsers() ([]domain.User, error)
 }
 
 type userService struct {
-	repo repositories.UserRepository
+	repo UserRepository
 }
 
-func NewUserService(repo repositories.UserRepository) UserService {
+func NewUserService(repo UserRepository) UserService {
 	return &userService{repo: repo}
 }
 
-func (s *userService) CreateUser(ctx context.Context, userRequest *models.CreateUserRequest) (*models.User, error) {
+func (s *userService) CreateUser(ctx context.Context, userRequest *domain.CreateUserRequest) (*domain.User, error) {
 
 	params := (&auth.UserToCreate{}).
 		Email(userRequest.Email).
@@ -45,7 +44,7 @@ func (s *userService) CreateUser(ctx context.Context, userRequest *models.Create
 		}
 	}()
 
-	userModel := &models.User{
+	userModel := &domain.User{
 		ID:    user.UID,
 		Name:  userRequest.Name,
 		Email: userRequest.Email,
@@ -62,6 +61,6 @@ func (s *userService) CreateUser(ctx context.Context, userRequest *models.Create
 
 }
 
-func (s *userService) GetUsers() ([]models.User, error) {
+func (s *userService) GetUsers() ([]domain.User, error) {
 	return s.repo.GetAll()
 }

@@ -7,8 +7,8 @@ import (
 
 	"github.com/Jacobo0312/go-web/config"
 	"github.com/Jacobo0312/go-web/internal/handlers"
-	"github.com/Jacobo0312/go-web/internal/repositories"
-	"github.com/Jacobo0312/go-web/internal/services"
+	"github.com/Jacobo0312/go-web/internal/product"
+	"github.com/Jacobo0312/go-web/internal/user"
 	"github.com/Jacobo0312/go-web/pkg/middlewares"
 )
 
@@ -35,15 +35,15 @@ func (s *Server) Start() error {
 	})
 
 	//Product
-	productRepo := repositories.NewProductRepository(s.db)
-	productService := services.NewProductService(productRepo)
+	productRepo := product.NewProductRepository(s.db)
+	productService := product.NewProductService(productRepo)
 	productHandler := handlers.NewProductHandler(productService)
 
 	productHandler.RegisterRoutes(s.router)
 
 	//User
-	userRepo := repositories.NewUserRepository(s.db)
-	userService := services.NewUserService(userRepo)
+	userRepo := user.NewUserRepository(s.db)
+	userService := user.NewUserService(userRepo)
 	userHandler := handlers.NewUserHandler(userService)
 
 	userHandler.RegisterRoutes(s.router)

@@ -1,8 +1,7 @@
-package services
+package product
 
 import (
-	"github.com/Jacobo0312/go-web/internal/models"
-	"github.com/Jacobo0312/go-web/internal/repositories"
+	models "github.com/Jacobo0312/go-web/internal/domain"
 )
 
 // ProductService interface
@@ -16,11 +15,11 @@ type ProductService interface {
 
 // ProductService struct
 type productService struct {
-	repo repositories.ProductRepository
+	repo ProductRepository
 }
 
 // NewProductService return a new ProductService
-func NewProductService(repo repositories.ProductRepository) ProductService {
+func NewProductService(repo ProductRepository) ProductService {
 	return &productService{repo: repo}
 }
 

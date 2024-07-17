@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/Jacobo0312/go-web/internal/models"
-	"github.com/Jacobo0312/go-web/internal/services"
+	"github.com/Jacobo0312/go-web/internal/domain"
+	"github.com/Jacobo0312/go-web/internal/product"
 
 	//"github.com/Jacobo0312/go-web/pkg/middlewares"
 	"github.com/Jacobo0312/go-web/pkg/errors"
@@ -23,10 +23,10 @@ type ProductHandler interface {
 }
 
 type productHandler struct {
-	service services.ProductService
+	service product.ProductService
 }
 
-func NewProductHandler(service services.ProductService) ProductHandler {
+func NewProductHandler(service product.ProductService) ProductHandler {
 	return &productHandler{service: service}
 }
 
@@ -42,7 +42,7 @@ func (h *productHandler) RegisterRoutes(r *http.ServeMux) {
 }
 
 func (h *productHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
-	var product models.Product
+	var product domain.Product
 	err := json.NewDecoder(r.Body).Decode(&product)
 	if err != nil {
 		helpers.RespondWithError(w, errors.NewBadRequest("Invalid request payload", err))
@@ -99,7 +99,7 @@ func (h *productHandler) GetProductByID(w http.ResponseWriter, r *http.Request) 
 
 // Update Product
 func (h *productHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
-	var product models.Product
+	var product domain.Product
 	err := json.NewDecoder(r.Body).Decode(&product)
 	if err != nil {
 		helpers.RespondWithError(w, errors.NewBadRequest("Invalid request payload", err))

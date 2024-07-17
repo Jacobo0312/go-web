@@ -1,4 +1,4 @@
-package models
+package domain
 
 type User struct {
 	ID    string `json:"id"`
@@ -13,4 +13,3 @@ type CreateUserRequest struct {
 	Password string `json:"password"`
 	Role     string `json:"role"`
 }
-

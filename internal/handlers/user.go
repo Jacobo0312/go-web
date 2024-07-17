@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/Jacobo0312/go-web/internal/models"
-	"github.com/Jacobo0312/go-web/internal/services"
+	models "github.com/Jacobo0312/go-web/internal/domain"
+	"github.com/Jacobo0312/go-web/internal/user"
 	"github.com/Jacobo0312/go-web/pkg/errors"
 	"github.com/Jacobo0312/go-web/pkg/helpers"
 )
@@ -18,10 +18,10 @@ type UserHandler interface {
 }
 
 type userHandler struct {
-	service services.UserService
+	service user.UserService
 }
 
-func NewUserHandler(service services.UserService) UserHandler {
+func NewUserHandler(service user.UserService) UserHandler {
 	return &userHandler{service: service}
 }
 

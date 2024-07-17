@@ -1,17 +1,16 @@
-package repositories
+package user
 
 import (
 	"database/sql"
 
-	"github.com/Jacobo0312/go-web/internal/models"
+	"github.com/Jacobo0312/go-web/internal/domain"
 )
 
 type UserRepository interface {
-	Register(u *models.User) error
-	FindByID(id string) (*models.User, error)
-	GetAll() ([]models.User, error)
+	Register(u *domain.User) error
+	FindByID(id string) (*domain.User, error)
+	GetAll() ([]domain.User, error)
 }
-
 
 type userRepository struct {
 	DB *sql.DB
@@ -21,7 +20,7 @@ func NewUserRepository(db *sql.DB) UserRepository {
 	return &userRepository{DB: db}
 }
 
-func (r *userRepository) Register(u *models.User) error {
+func (r *userRepository) Register(u *domain.User) error {
 	query := "INSERT INTO users (id, name, email, role) VALUES (?, ?, ?, ?)"
 	_, err := r.DB.Exec(query, u.ID, u.Name, u.Email, u.Role)
 	if err != nil {
@@ -30,11 +29,11 @@ func (r *userRepository) Register(u *models.User) error {
 	return nil
 }
 
-func (r *userRepository) FindByID(id string) (*models.User, error) {
+func (r *userRepository) FindByID(id string) (*domain.User, error) {
 	query := "SELECT id, name, email, role FROM users WHERE id = ?"
 	row := r.DB.QueryRow(query, id)
 
-	var u models.User
+	var u domain.User
 	err := row.Scan(&u.ID, &u.Name, &u.Email, &u.Role)
 	if err != nil {
 		return nil, err
@@ -42,7 +41,7 @@ func (r *userRepository) FindByID(id string) (*models.User, error) {
 	return &u, nil
 }
 
-func (r *userRepository) GetAll() ([]models.User, error) {
+func (r *userRepository) GetAll() ([]domain.User, error) {
 	query := "SELECT id, name, email, role FROM users"
 	rows, err := r.DB.Query(query)
 	if err != nil {
@@ -50,9 +49,9 @@ func (r *userRepository) GetAll() ([]models.User, error) {
 	}
 	defer rows.Close()
 
-	var users []models.User
+	var users []domain.User
 	for rows.Next() {
-		var u models.User
+		var u domain.User
 		err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.Role)
 		if err != nil {
 			return nil, err

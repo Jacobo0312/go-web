@@ -1,4 +1,4 @@
-package models
+package domain
 
 // Product struct
 // ID, Name, Price, Description y Category.
