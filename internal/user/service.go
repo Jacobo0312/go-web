@@ -40,7 +40,9 @@ func (s *userService) CreateUser(ctx context.Context, userRequest *domain.Create
 
 	defer func() {
 		if err != nil {
-			firebase.FirebaseAuth.DeleteUser(ctx, user.UID)
+			if err := firebase.FirebaseAuth.DeleteUser(ctx, user.UID); err != nil {
+				log.Printf("Error deleting user from Firebase: %v", err)
+			}
 		}
 	}()
 

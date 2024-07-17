@@ -24,8 +24,9 @@ func FirebaseAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
             return
         }
 
-        // Añade el UID del usuario al contexto de la solicitud
-        ctx := context.WithValue(r.Context(), "userID", token.UID)
+        // Add userID to context
+        type contextKey string
+        ctx := context.WithValue(r.Context(), contextKey("userID"), token.UID)
         next.ServeHTTP(w, r.WithContext(ctx))
     }
 }

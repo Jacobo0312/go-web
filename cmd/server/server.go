@@ -9,6 +9,7 @@ import (
 	"github.com/Jacobo0312/go-web/internal/handlers"
 	"github.com/Jacobo0312/go-web/internal/product"
 	"github.com/Jacobo0312/go-web/internal/user"
+	"github.com/Jacobo0312/go-web/pkg/helpers"
 	"github.com/Jacobo0312/go-web/pkg/middlewares"
 )
 
@@ -30,8 +31,7 @@ func (s *Server) Start() error {
 
 	//Health check
 	s.router.HandleFunc("GET /ping", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("pong"))
+		helpers.RespondWithJSON(w, http.StatusOK, map[string]string{"message": "pong"})
 	})
 
 	//Product
