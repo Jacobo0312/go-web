@@ -8,22 +8,29 @@ import (
 	"github.com/Jacobo0312/go-web/internal/services"
 )
 
-type UserHandler struct {
-	service *services.UserService
+// UserHandler interface
+type UserHandler interface {
+	CreateUser(w http.ResponseWriter, r *http.Request)
+	GetUsers(w http.ResponseWriter, r *http.Request)
+	RegisterRoutes(r *http.ServeMux)
 }
 
-func NewUserHandler(service *services.UserService) *UserHandler {
-	return &UserHandler{service: service}
+type userHandler struct {
+	service services.UserService
+}
+
+func NewUserHandler(service services.UserService) UserHandler {
+	return &userHandler{service: service}
 }
 
 // Register routes
-func (h *UserHandler) RegisterRoutes(r *http.ServeMux) {
+func (h *userHandler) RegisterRoutes(r *http.ServeMux) {
 	r.HandleFunc("POST /users", h.CreateUser)
 	r.HandleFunc("GET /users", h.GetUsers)
 
 }
 
-func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+func (h *userHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.CreateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
@@ -42,7 +49,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(createUser)
 }
 
-func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
+func (h *userHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.service.GetUsers()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

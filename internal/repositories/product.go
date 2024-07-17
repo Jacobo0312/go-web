@@ -6,15 +6,23 @@ import (
 	"github.com/Jacobo0312/go-web/internal/models"
 )
 
-type ProductRepository struct {
+type ProductRepository interface {
+	Create(p *models.Product) error
+	GetAll() ([]models.Product, error)
+	GetByID(id int64) (*models.Product, error)
+	Update(p *models.Product) error
+	Delete(id int64) error
+}
+
+type productRepository struct {
 	DB *sql.DB
 }
 
-func NewProductRepository(db *sql.DB) *ProductRepository {
-	return &ProductRepository{DB: db}
+func NewProductRepository(db *sql.DB) ProductRepository {
+	return &productRepository{DB: db}
 }
 
-func (r *ProductRepository) Create(p *models.Product) error {
+func (r *productRepository) Create(p *models.Product) error {
 	query := "INSERT INTO products (name, price, description, category) VALUES (?, ?, ?, ?)"
 	result, err := r.DB.Exec(query, p.Name, p.Price, p.Description, p.Category)
 	if err != nil {
@@ -30,7 +38,7 @@ func (r *ProductRepository) Create(p *models.Product) error {
 	return nil
 }
 
-func (r *ProductRepository) GetAll() ([]models.Product, error) {
+func (r *productRepository) GetAll() ([]models.Product, error) {
 	query := "SELECT id, name, price, description, category FROM products"
 	rows, err := r.DB.Query(query)
 	if err != nil {
@@ -51,7 +59,7 @@ func (r *ProductRepository) GetAll() ([]models.Product, error) {
 	return products, nil
 }
 
-func (r *ProductRepository) GetByID(id int64) (*models.Product, error) {
+func (r *productRepository) GetByID(id int64) (*models.Product, error) {
 	query := "SELECT id, name, price, description, category FROM products WHERE id = ?"
 	row := r.DB.QueryRow(query, id)
 
@@ -64,7 +72,7 @@ func (r *ProductRepository) GetByID(id int64) (*models.Product, error) {
 	return &p, nil
 }
 
-func (r *ProductRepository) Update(p *models.Product) error {
+func (r *productRepository) Update(p *models.Product) error {
 	query := "UPDATE products SET name = ?, price = ?, description = ?, category = ? WHERE id = ?"
 	_, err := r.DB.Exec(query, p.Name, p.Price, p.Description, p.Category, p.ID)
 	if err != nil {
@@ -74,7 +82,7 @@ func (r *ProductRepository) Update(p *models.Product) error {
 	return nil
 }
 
-func (r *ProductRepository) Delete(id int64) error {
+func (r *productRepository) Delete(id int64) error {
 	query := "DELETE FROM products WHERE id = ?"
 	_, err := r.DB.Exec(query, id)
 	if err != nil {

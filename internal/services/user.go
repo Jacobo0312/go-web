@@ -10,15 +10,20 @@ import (
 	"github.com/Jacobo0312/go-web/pkg/firebase"
 )
 
-type UserService struct {
-	repo *repositories.UserRepository
+type UserService interface {
+	CreateUser(ctx context.Context, userRequest *models.CreateUserRequest) (*models.User, error)
+	GetUsers() ([]models.User, error)
 }
 
-func NewUserService(repo *repositories.UserRepository) *UserService {
-	return &UserService{repo: repo}
+type userService struct {
+	repo repositories.UserRepository
 }
 
-func (s *UserService) CreateUser(ctx context.Context, userRequest *models.CreateUserRequest) (*models.User, error) {
+func NewUserService(repo repositories.UserRepository) UserService {
+	return &userService{repo: repo}
+}
+
+func (s *userService) CreateUser(ctx context.Context, userRequest *models.CreateUserRequest) (*models.User, error) {
 
 	params := (&auth.UserToCreate{}).
 		Email(userRequest.Email).
@@ -57,6 +62,6 @@ func (s *UserService) CreateUser(ctx context.Context, userRequest *models.Create
 
 }
 
-func (s *UserService) GetUsers() ([]models.User, error) {
+func (s *userService) GetUsers() ([]models.User, error) {
 	return s.repo.GetAll()
 }
