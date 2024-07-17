@@ -6,6 +6,8 @@ import (
 
 	"github.com/Jacobo0312/go-web/internal/models"
 	"github.com/Jacobo0312/go-web/internal/services"
+	"github.com/Jacobo0312/go-web/pkg/errors"
+	"github.com/Jacobo0312/go-web/pkg/helpers"
 )
 
 // UserHandler interface
@@ -40,23 +42,19 @@ func (h *userHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	createUser, err := h.service.CreateUser(r.Context(), &user)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		helpers.RespondWithError(w, errors.NewInternalServerError("Error creating user", err))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(createUser)
+	helpers.RespondWithJSON(w, http.StatusCreated, createUser)
 }
 
 func (h *userHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.service.GetUsers()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		helpers.RespondWithError(w, errors.NewInternalServerError("Error getting users", err))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(users)
+	helpers.RespondWithJSON(w, http.StatusOK, users)
 }
