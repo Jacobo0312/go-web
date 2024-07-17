@@ -25,4 +25,4 @@
 
 ## TODO LIST
 
-1. Manage errors
+1. Implement abstract mock
