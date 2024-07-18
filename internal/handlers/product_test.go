@@ -3,6 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/Jacobo0312/go-web/internal/domain"
@@ -43,6 +45,8 @@ func (m *mockProductService) DeleteProduct(id int64) error {
 func TestHandlerCreateProduct(t *testing.T) {
 	mockService := new(mockProductService)
 	handler := NewProductHandler(mockService)
+	mux := http.NewServeMux()
+	handler.RegisterRoutes(mux)
 
 	testCases := []test.HandlerTestCase{
 		{
@@ -72,12 +76,12 @@ func TestHandlerCreateProduct(t *testing.T) {
 		if tc.Name == "successful creation" {
 			product := &domain.Product{Name: "Test Product", Price: 9.99}
 			mockService.On("CreateProduct", product).Return(nil).Once()
-		}else if tc.Name == "service error" {
+		} else if tc.Name == "service error" {
 			product := &domain.Product{Name: "Error Product", Price: 19.99}
 			mockService.On("CreateProduct", product).Return(errors.NewBadRequest("Invalid request payload", nil)).Once()
 		}
 
-		test.ExecuteHandlerTestCase(t, handler.CreateProduct, tc)
+		test.ExecuteHandlerTestCase(t, mux, tc)
 	}
 
 	mockService.AssertExpectations(t)
@@ -86,6 +90,8 @@ func TestHandlerCreateProduct(t *testing.T) {
 func TestHandlerGetAllProducts(t *testing.T) {
 	mockService := new(mockProductService)
 	handler := NewProductHandler(mockService)
+	mux := http.NewServeMux()
+	handler.RegisterRoutes(mux)
 
 	products := []domain.Product{{ID: 1, Name: "Product 1"}, {ID: 2, Name: "Product 2"}}
 	productsJSON, _ := json.Marshal(products)
@@ -113,59 +119,64 @@ func TestHandlerGetAllProducts(t *testing.T) {
 			mockService.On("GetAllProducts").Return([]domain.Product{}, errors.NewInternalServerError("Error getting products", nil)).Once()
 		}
 
-		test.ExecuteHandlerTestCase(t, handler.GetAllProducts, tc)
+		test.ExecuteHandlerTestCase(t, mux, tc)
 	}
 
 	mockService.AssertExpectations(t)
 }
 
-// func TestHandlerGetProductByID(t *testing.T) {
+func TestHandlerGetProductByID(t *testing.T) {
 
-// 	mockService := new(mockProductService)
-// 	handler := NewProductHandler(mockService)
-	
-// 	product := &domain.Product{
-// 		ID:          1,
-// 		Name:        "Audifonos",
-// 		Price:       19.99,
-// 		Description: "Marca KZ",
-// 		Category:    "Audio",
-// 	}
+	mockService := new(mockProductService)
+	handler := NewProductHandler(mockService)
+	mux := http.NewServeMux()
+	handler.RegisterRoutes(mux)
 
-// 	mockService.On("GetProductByID", int64(24)).Return(product, nil).Once()
+	product := &domain.Product{
+		ID:          1,
+		Name:        "Audifonos",
+		Price:       19.99,
+		Description: "Marca KZ",
+		Category:    "Audio",
+	}
 
-// 	testCases := []test.HandlerTestCase{
-// 		{
-// 			Name:             "successful retrieval",
-// 			Method:           "GET",
-// 			URL:              "/products/1",
-// 			ExpectedStatus:   http.StatusOK,
-// 			ExpectedResponse: `{"id": 1,"name": "Audifonos","price": 19.99,"description": "Marca KZ","category": "Audio"}`,
-// 		},
-// 		// {
-// 		//     Name:           "product not found",
-// 		//     Method:         "GET",
-// 		//     URL:            "/products/999",
-// 		//     ExpectedStatus: http.StatusNotFound,
-// 		// },
-// 		// {
-// 		//     Name:           "invalid id",
-// 		//     Method:         "GET",
-// 		//     URL:            "/products/invalid",
-// 		//     ExpectedStatus: http.StatusBadRequest,
-// 		// },
-// 	}
+	mockService.On("GetProductByID", int64(1)).Return(product, nil).Once()
 
-// 	for _, tc := range testCases {
-// 		test.ExecuteHandlerTestCase(t, handler.GetProductByID, tc)
-// 	}
+	testCases := []test.HandlerTestCase{
+		{
+			Name:             "successful retrieval",
+			Method:           "GET",
+			URL:              "/products/1",
+			ExpectedStatus:   http.StatusOK,
+			ExpectedResponse: `{"id":1,"name":"Audifonos","price":19.99,"description":"Marca KZ","category":"Audio"}`,
+		},
+		// {
+		//     Name:           "product not found",
+		//     Method:         "GET",
+		//     URL:            "/products/999",
+		//     ExpectedStatus: http.StatusNotFound,
+		// },
+		// {
+		//     Name:           "invalid id",
+		//     Method:         "GET",
+		//     URL:            "/products/invalid",
+		//     ExpectedStatus: http.StatusBadRequest,
+		// },
+	}
 
-// 	mockService.AssertExpectations(t)
-// }
+	for _, tc := range testCases {
+		test.ExecuteHandlerTestCase(t, mux, tc)
+	}
+
+	mockService.AssertExpectations(t)
+}
 
 // func TestHandlerDeleteProduct(t *testing.T) {
 // 	mockService := new(mockProductService)
 // 	handler := NewProductHandler(mockService)
+
+// 	mux := http.NewServeMux()
+// 	handler.RegisterRoutes(mux)
 
 // 	testCases := []test.HandlerTestCase{
 // 		{
@@ -202,3 +213,68 @@ func TestHandlerGetAllProducts(t *testing.T) {
 
 // 	mockService.AssertExpectations(t)
 // }
+
+func TestHandlerGetProductByID2(t *testing.T) {
+	mockService := new(mockProductService)
+	handler := NewProductHandler(mockService)
+	mux := http.NewServeMux()
+
+	handler.RegisterRoutes(mux)
+
+	product := &domain.Product{
+		ID:          1,
+		Name:        "Audifonos",
+		Price:       19.99,
+		Description: "Marca KZ",
+		Category:    "Audio",
+	}
+
+	mockService.On("GetProductByID", int64(1)).Return(product, nil).Once()
+
+	testCases := []test.HandlerTestCase{
+		{
+			Name:             "successful retrieval",
+			Method:           "GET",
+			URL:              "/products/1",
+			ExpectedStatus:   http.StatusOK,
+			ExpectedResponse: `{"id":1,"name":"Audifonos","price":19.99,"description":"Marca KZ","category":"Audio"}`,
+		},
+		// {
+		//     Name:           "product not found",
+		//     Method:         "GET",
+		//     URL:            "/products/999",
+		//     ExpectedStatus: http.StatusNotFound,
+		// },
+		// {
+		//     Name:           "invalid id",
+		//     Method:         "GET",
+		//     URL:            "/products/invalid",
+		//     ExpectedStatus: http.StatusBadRequest,
+		// },
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
+			req, err := http.NewRequest("GET", tc.URL, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			rr := httptest.NewRecorder()
+
+			mux.ServeHTTP(rr, req)
+
+			if status := rr.Code; status != tc.ExpectedStatus {
+				t.Errorf("handler returned wrong status code: got %v want %v", status, tc.ExpectedStatus)
+			}
+
+			if tc.ExpectedResponse != "" {
+				if strings.TrimSpace(rr.Body.String()) != strings.TrimSpace(tc.ExpectedResponse) {
+					t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), tc.ExpectedResponse)
+				}
+			}
+		})
+	}
+
+	mockService.AssertExpectations(t)
+}

@@ -19,7 +19,7 @@ type HandlerTestCase struct {
 	ExpectedResponse string
 }
 
-func ExecuteHandlerTestCase(t *testing.T, h http.HandlerFunc, tc HandlerTestCase) {
+func ExecuteHandlerTestCase(t *testing.T, mux *http.ServeMux, tc HandlerTestCase) {
 	t.Run(tc.Name, func(t *testing.T) {
 		var body io.Reader
 		if tc.Body != "" {
@@ -34,8 +34,8 @@ func ExecuteHandlerTestCase(t *testing.T, h http.HandlerFunc, tc HandlerTestCase
 		}
 
 		rr := httptest.NewRecorder()
-		h.ServeHTTP(rr, req)
-
+		mux.ServeHTTP(rr, req)
+		t.Logf("Response: %v", rr.Body.String())
 		assert.Equal(t, tc.ExpectedStatus, rr.Code)
 		if tc.ExpectedResponse != "" {
 			assert.JSONEq(t, tc.ExpectedResponse, rr.Body.String())
