@@ -3,7 +3,6 @@
 MODULE = $(shell go list -m)
 PACKAGES := $(shell go list ./... | grep -v /vendor/)
 
-
 .PHONY: test
 test: ## run unit tests
 	@echo "mode: count" > coverage-all.out
@@ -34,4 +33,9 @@ lint: ## run linter
 compose: ## start the database
 	docker-compose -f deployments/docker-compose.yml up -d
 
+
+.PHONY: migrate-new
+migrate-new: ## create a new database migration
+	@read -p "Enter the name of the new migration: " name; \
+	migrate create -ext sql -dir db/migrations/ $${name// /_} 
 

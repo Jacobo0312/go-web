@@ -48,7 +48,7 @@ func (s *Server) Start() error {
 
 	userHandler.RegisterRoutes(s.router)
 
-	middleware := middlewares.MiddlewareChain()
+	middleware := middlewares.MiddlewareChain(middlewares.LoggingMiddleware)
 
 	log.Printf("Starting server on %s", s.config.ServerAddr)
 	server := &http.Server{

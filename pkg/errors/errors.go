@@ -35,6 +35,6 @@ func NewInternalServerError(message string, err error) *AppError {
 	return New(http.StatusInternalServerError, message, err)
 }
 
-func NewUnauthorized(message string, err error) *AppError {
-	return New(http.StatusUnauthorized, message, err)
+func NewUnauthorized(message string) *AppError {
+	return New(http.StatusUnauthorized, message, nil)
 }
