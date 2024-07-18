@@ -2,9 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
-	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/Jacobo0312/go-web/internal/domain"
@@ -42,11 +41,16 @@ func (m *mockProductService) DeleteProduct(id int64) error {
 	return args.Error(0)
 }
 
-func TestHandlerCreateProduct(t *testing.T) {
+func setupProductHandlerTest() (*mockProductService, *http.ServeMux) {
 	mockService := new(mockProductService)
 	handler := NewProductHandler(mockService)
 	mux := http.NewServeMux()
 	handler.RegisterRoutes(mux)
+	return mockService, mux
+}
+
+func TestHandlerCreateProduct(t *testing.T) {
+	mockService, mux := setupProductHandlerTest()
 
 	testCases := []test.HandlerTestCase{
 		{
@@ -88,10 +92,7 @@ func TestHandlerCreateProduct(t *testing.T) {
 }
 
 func TestHandlerGetAllProducts(t *testing.T) {
-	mockService := new(mockProductService)
-	handler := NewProductHandler(mockService)
-	mux := http.NewServeMux()
-	handler.RegisterRoutes(mux)
+	mockService, mux := setupProductHandlerTest()
 
 	products := []domain.Product{{ID: 1, Name: "Product 1"}, {ID: 2, Name: "Product 2"}}
 	productsJSON, _ := json.Marshal(products)
@@ -127,10 +128,7 @@ func TestHandlerGetAllProducts(t *testing.T) {
 
 func TestHandlerGetProductByID(t *testing.T) {
 
-	mockService := new(mockProductService)
-	handler := NewProductHandler(mockService)
-	mux := http.NewServeMux()
-	handler.RegisterRoutes(mux)
+	mockService, mux := setupProductHandlerTest()
 
 	product := &domain.Product{
 		ID:          1,
@@ -140,8 +138,6 @@ func TestHandlerGetProductByID(t *testing.T) {
 		Category:    "Audio",
 	}
 
-	mockService.On("GetProductByID", int64(1)).Return(product, nil).Once()
-
 	testCases := []test.HandlerTestCase{
 		{
 			Name:             "successful retrieval",
@@ -150,130 +146,68 @@ func TestHandlerGetProductByID(t *testing.T) {
 			ExpectedStatus:   http.StatusOK,
 			ExpectedResponse: `{"id":1,"name":"Audifonos","price":19.99,"description":"Marca KZ","category":"Audio"}`,
 		},
-		// {
-		//     Name:           "product not found",
-		//     Method:         "GET",
-		//     URL:            "/products/999",
-		//     ExpectedStatus: http.StatusNotFound,
+		//{
+		// 	Name:           "product not found",
+		// 	Method:         "GET",
+		// 	URL:            "/products/999",
+		// 	ExpectedStatus: http.StatusNotFound,
 		// },
-		// {
-		//     Name:           "invalid id",
-		//     Method:         "GET",
-		//     URL:            "/products/invalid",
-		//     ExpectedStatus: http.StatusBadRequest,
-		// },
+		{
+			Name:           "invalid id",
+			Method:         "GET",
+			URL:            "/products/invalid",
+			ExpectedStatus: http.StatusBadRequest,
+		},
 	}
 
 	for _, tc := range testCases {
+		if tc.Name == "product not found" {
+			mockService.On("GetProductByID", int64(999)).Return(nil, fmt.Errorf("Not found")).Once()
+		} else if tc.Name == "successful retrieval" {
+			mockService.On("GetProductByID", int64(1)).Return(product, nil).Once()
+		}
+
 		test.ExecuteHandlerTestCase(t, mux, tc)
+
 	}
 
 	mockService.AssertExpectations(t)
 }
 
-// func TestHandlerDeleteProduct(t *testing.T) {
-// 	mockService := new(mockProductService)
-// 	handler := NewProductHandler(mockService)
-
-// 	mux := http.NewServeMux()
-// 	handler.RegisterRoutes(mux)
-
-// 	testCases := []test.HandlerTestCase{
-// 		{
-// 			Name:           "successful deletion",
-// 			Method:         "DELETE",
-// 			URL:            "/products/1",
-// 			ExpectedStatus: http.StatusNoContent,
-// 		},
-// 		// {
-// 		// 	Name:           "product not found",
-// 		// 	Method:         "DELETE",
-// 		// 	URL:            "/products/999",
-// 		// 	ExpectedStatus: http.StatusNotFound,
-// 		// },
-// 		// {
-// 		// 	Name:           "invalid id",
-// 		// 	Method:         "DELETE",
-// 		// 	URL:            "/products/invalid",
-// 		// 	ExpectedStatus: http.StatusBadRequest,
-// 		// },
-// 	}
-
-// 	for _, tc := range testCases {
-// 		if tc.Name == "successful deletion" {
-// 			mockService.On("DeleteProduct", int64(1)).Return(nil).Once()
-// 		}
-
-// 		// else if tc.Name == "product not found" {
-// 		//     mockService.On("DeleteProduct", int64(999)).Return(errors.New("not found")).Once()
-// 		// }
-
-// 		test.ExecuteHandlerTestCase(t, handler.DeleteProduct, tc)
-// 	}
-
-// 	mockService.AssertExpectations(t)
-// }
-
-func TestHandlerGetProductByID2(t *testing.T) {
-	mockService := new(mockProductService)
-	handler := NewProductHandler(mockService)
-	mux := http.NewServeMux()
-
-	handler.RegisterRoutes(mux)
-
-	product := &domain.Product{
-		ID:          1,
-		Name:        "Audifonos",
-		Price:       19.99,
-		Description: "Marca KZ",
-		Category:    "Audio",
-	}
-
-	mockService.On("GetProductByID", int64(1)).Return(product, nil).Once()
+func TestHandlerDeleteProduct(t *testing.T) {
+	mockService, mux := setupProductHandlerTest()
 
 	testCases := []test.HandlerTestCase{
 		{
-			Name:             "successful retrieval",
-			Method:           "GET",
-			URL:              "/products/1",
-			ExpectedStatus:   http.StatusOK,
-			ExpectedResponse: `{"id":1,"name":"Audifonos","price":19.99,"description":"Marca KZ","category":"Audio"}`,
+			Name:           "successful deletion",
+			Method:         "DELETE",
+			URL:            "/products/1",
+			ExpectedStatus: http.StatusNoContent,
 		},
 		// {
-		//     Name:           "product not found",
-		//     Method:         "GET",
-		//     URL:            "/products/999",
-		//     ExpectedStatus: http.StatusNotFound,
+		// 	Name:           "product not found",
+		// 	Method:         "DELETE",
+		// 	URL:            "/products/999",
+		// 	ExpectedStatus: http.StatusNotFound,
 		// },
 		// {
-		//     Name:           "invalid id",
-		//     Method:         "GET",
-		//     URL:            "/products/invalid",
-		//     ExpectedStatus: http.StatusBadRequest,
+		// 	Name:           "invalid id",
+		// 	Method:         "DELETE",
+		// 	URL:            "/products/invalid",
+		// 	ExpectedStatus: http.StatusBadRequest,
 		// },
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.Name, func(t *testing.T) {
-			req, err := http.NewRequest("GET", tc.URL, nil)
-			if err != nil {
-				t.Fatal(err)
-			}
+		if tc.Name == "successful deletion" {
+			mockService.On("DeleteProduct", int64(1)).Return(nil).Once()
+		} else if tc.Name == "product not found" {
+			mockService.On("DeleteProduct", int64(999)).Return(errors.NewNotFound("Product not found", nil)).Once()
+		} else if tc.Name == "invalid id" {
+			mockService.On("DeleteProduct", int64(0)).Return(errors.NewBadRequest("Invalid product ID", nil)).Once()
+		}
 
-			rr := httptest.NewRecorder()
-
-			mux.ServeHTTP(rr, req)
-
-			if status := rr.Code; status != tc.ExpectedStatus {
-				t.Errorf("handler returned wrong status code: got %v want %v", status, tc.ExpectedStatus)
-			}
-
-			if tc.ExpectedResponse != "" {
-				if strings.TrimSpace(rr.Body.String()) != strings.TrimSpace(tc.ExpectedResponse) {
-					t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), tc.ExpectedResponse)
-				}
-			}
-		})
+		test.ExecuteHandlerTestCase(t, mux, tc)
 	}
 
 	mockService.AssertExpectations(t)
